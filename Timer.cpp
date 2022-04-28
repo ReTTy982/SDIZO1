@@ -263,7 +263,7 @@ void Timer::run()
     for (auto size : datasetSizesToTest)
     {
         datasetSize = size;
-    /*
+    
         // ARRAY
         logger.logToFile(GenericInsert<Array, datatype>(array_push_front));
         logger.logToFile(GenericInsert<Array, datatype>(array_push_back));
@@ -283,10 +283,10 @@ void Timer::run()
         logger.logToFile(GenericInsert<BinHeap, datatype>(heap_push));
         logger.logToFile(GenericRemove<BinHeap, datatype>(heap_push));
         logger.logToFile(GenericSearch<BinHeap, datatype>(heap_push));
-*/
+
         //RBTree
         logger.logToFile(GenericInsert<RBTree, datatype>(tree_push));
-        //logger.logToFile(GenericRemove<RBTree,datatype>(tree_push));
+        logger.logToFile(GenericRemove<RBTree,datatype>(tree_push));
         logger.logToFile(GenericSearch<RBTree,datatype>(tree_push));
 
         logger.array_file

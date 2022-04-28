@@ -199,19 +199,21 @@ void RBTree<T>::fix_balance(Node *node)
             // Najpierw musimy przejsc z przypadku trójkątnego do liniowego
             if (parent->value < node->value && grandparent->value > node->value) // wierzcholek trojkata skierowany w lewo
             {
-                rotateL(node);
-
+                rotateL(parent);
+                
                 node = node->left_child;
                 parent = node->parent;
                 grandparent = parent->parent;
+                
             }
             else if (parent->value > node->value && grandparent->value < node->value) // wierzcholek traojkata skierowany w prawo
             {
-                rotateR(node);
-
+                rotateR(parent);
+                
                 node = node->right_child;
                 parent = node->parent;
                 grandparent = parent->parent;
+                
             }
 
             // zmieniam kolory zanim nadpisze zmienne kolejna rotacja
@@ -223,11 +225,11 @@ void RBTree<T>::fix_balance(Node *node)
             if (parent->left_child == node)
             {
 
-                rotateR(parent);
+                rotateR(grandparent);
             }
             else
             {
-                rotateL(parent);
+                rotateL(grandparent);
             }
             break;
         }
@@ -280,7 +282,6 @@ inline auto RBTree<T>::get_uncle(const RBTree<T>::Node *node)
 template <typename T>
 inline auto RBTree<T>::get_succesor(RBTree<T>::Node *node) -> RBTree<T>::Node *
 {
-    std::cout << "Wchodze";
     while (node->left_child != nullptr)
     {
         node = node->left_child;
@@ -335,7 +336,6 @@ void RBTree<T>::rotateR(RBTree<T>::Node *node)
     if (node == root)
         root = new_parent;
 
-    std::cout<< "CO NIBY NIE DZIALA";
     if (node->parent != NULL)
     {
         if (node->parent->left_child == node)
@@ -349,8 +349,6 @@ void RBTree<T>::rotateR(RBTree<T>::Node *node)
     }
     new_parent->parent = node->parent;
     node->parent = new_parent;
-
-
 
     // connect x with new parent's right element
     node->left_child = new_parent->right_child;
@@ -373,7 +371,6 @@ void RBTree<T>::rotateL(RBTree<T>::Node *node)
     if (node == root)
         root = new_parent;
 
-    std::cout<< "CO NIBY NIE DZIALA";
     if (node->parent != NULL)
     {
         if (node->parent->left_child == node)
@@ -388,8 +385,6 @@ void RBTree<T>::rotateL(RBTree<T>::Node *node)
     new_parent->parent = node->parent;
     node->parent = new_parent;
 
-
-
     // connect x with new parent's right element
     node->right_child = new_parent->left_child;
     // connect new parent's right element with node
@@ -400,7 +395,6 @@ void RBTree<T>::rotateL(RBTree<T>::Node *node)
     // connect new parent with x
     new_parent->left_child = node;
 }
-
 
 /*
 template <typename T>
@@ -553,12 +547,12 @@ inline auto RBTree<T>::get_brother(Node *node) -> RBTree<T>::Node *
     }
     if (node->parent->left_child == node)
     {
-        std::cout << "XD1" << std::endl;
+
         return node->parent->right_child;
     }
     else
     {
-        std::cout << "XD2" << std::endl;
+
         return node->parent->left_child;
     }
 }
@@ -678,13 +672,9 @@ bool RBTree<T>::bst_delete(Node *node) // const T &value
 template <typename T>
 void RBTree<T>::delete_node(Node *node)
 {
-    std::cout << "TEST FUNKCJI" << std::endl;
     Node *replacement = find_replace(node);
-    std::cout << "TEST FUNKCJI2" << std::endl;
     Node *parent = node->parent;
-    std::cout << "TEST FUNKCJI3" << std::endl;
     Node *brother = get_brother(node);
-    std::cout << "TEST FUNKCJI4" << std::endl;
     bool both_black;
     if ((replacement == nullptr || replacement->color == Color::BLACK) && (node->color == Color::BLACK))
     {
@@ -696,7 +686,6 @@ void RBTree<T>::delete_node(Node *node)
     }
     if (replacement == nullptr)
     {
-        std::cout << "TEST FUNKCJI5" << std::endl;
         if (node == root)
         {
             root = nullptr;
@@ -706,12 +695,12 @@ void RBTree<T>::delete_node(Node *node)
 
             if (both_black)
             {
-                std::cout << "TEST FUNKCJI0" << std::endl;
+
                 fix_double_black(node);
             }
             else
             {
-                std::cout << "TEST FUNKCJI7" << std::endl;
+
                 if (brother != nullptr)
                 {
                     brother->color = Color::RED;
@@ -724,7 +713,7 @@ void RBTree<T>::delete_node(Node *node)
             }
             else
             {
-                std::cout << "TEST FUNKCJI8" << std::endl;
+
                 parent->right_child = nullptr;
             }
         }
@@ -779,17 +768,17 @@ void RBTree<T>::fix_double_black(Node *node)
     }
 
     Node *brother = get_brother(node);
-    std::cout << "Test tej 1" << std::endl;
+
     Node *parent = node->parent;
 
     if (brother == nullptr)
     {
-        std::cout << "Test tej 2" << std::endl;
+
         fix_double_black(parent);
     }
     else
     {
-        std::cout << "Test tej 3" << std::endl;
+
         if (brother->color == Color::RED)
         {
             parent->color = Color::RED;
@@ -806,25 +795,25 @@ void RBTree<T>::fix_double_black(Node *node)
         }
         else
         {
-            std::cout << "Test tej 4" << std::endl;
+
             if (has_red_child(brother))
             {
-                std::cout << "Test tej 5" << std::endl;
+
                 if (brother->left_child != nullptr && brother->left_child->color == Color::RED)
                 {
-                    std::cout << "Test tej 7" << std::endl;
+
                     if (brother->parent->left_child == brother)
                     {
-                        std::cout << "Test tej 8" << std::endl;
+
                         brother->left_child->color = brother->color;
-                        std::cout << "Test tej 9" << std::endl;
+
                         brother->color = parent->color;
-                        std::cout << "Test tej 10" << std::endl;
+
                         rotateR(parent);
                     }
                     else
                     {
-                        std::cout << "Test tej 9" << std::endl;
+
                         brother->left_child->color = parent->color;
                         rotateR(brother);
                         rotateL(parent);
@@ -845,12 +834,12 @@ void RBTree<T>::fix_double_black(Node *node)
                         rotateL(parent);
                     }
                 }
-                std::cout << "Test tej 15" << std::endl;
+
                 parent->color = Color::BLACK;
             }
             else
             {
-                std::cout << "Test tej 6" << std::endl;
+
                 brother->color = Color::RED;
                 if (parent->color == Color::BLACK)
                 {
