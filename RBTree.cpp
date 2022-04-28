@@ -40,6 +40,7 @@ void RBTree<T>::push(const T &value)
     }
     else
     {
+        /* BACZEK TUTAJ
         Node *browse = root;
 
         // std::cout << "Our hero ascends into the pit of red-black madness. What "
@@ -77,9 +78,33 @@ void RBTree<T>::push(const T &value)
 
         // std::cout << "As all things should be" << std::endl;
         fix_balance(node);
+        */
+        Node **browse = &root;
+        Node *parent;
+
+        while (*browse)
+        {
+            parent = *browse;
+
+            if (parent->value > value)
+            {
+                browse = &parent->left_child;
+            }
+            else
+            {
+                browse = &parent->right_child;
+            }
+        }
+
+        Node *node = new Node;
+        node->value = value;
+        node->parent = parent;
+        *browse = node;
+
+        fix_balance(node);
     }
 }
-
+/*
 template <typename T>
 void RBTree<T>::fix_balance(Node *node)
 {
@@ -158,6 +183,63 @@ void RBTree<T>::fix_balance(Node *node)
 
     root->color = Color::BLACK; // korzen zawsze bedzie czarny wiec jest to
                                 // ostatni krok funkcji
+}*/
+
+template <typename T>
+void RBTree<T>::fix_balance(Node *node)
+{
+    while (node != root && node->parent->color == Color::RED) // Ojciec nie jest czarny a wezel nie jest korzeniem
+    {
+        Node *parent = node->parent;
+        Node *grandparent = parent->parent;
+        Node *uncle = get_uncle(parent);
+
+        if (!uncle || uncle->color == Color::BLACK) // Wujek jest czarny/NIL
+        {
+            // Najpierw musimy przejsc z przypadku trójkątnego do liniowego
+            if (parent->value < node->value && grandparent->value > node->value) // wierzcholek trojkata skierowany w lewo
+            {
+                rotateL(node);
+
+                node = node->left_child;
+                parent = node->parent;
+                grandparent = parent->parent;
+            }
+            else if (parent->value > node->value && grandparent->value < node->value) // wierzcholek traojkata skierowany w prawo
+            {
+                rotateR(node);
+
+                node = node->right_child;
+                parent = node->parent;
+                grandparent = parent->parent;
+            }
+
+            // zmieniam kolory zanim nadpisze zmienne kolejna rotacja
+            parent->color = Color::BLACK;
+            node->color = Color::RED;
+            grandparent->color = Color::RED;
+
+            // rotacja z przypadku liniowego
+            if (parent->left_child == node)
+            {
+
+                rotateR(parent);
+            }
+            else
+            {
+                rotateL(parent);
+            }
+            break;
+        }
+
+        // Przypadek kiedy wujaszek jest czerwony
+        parent->color = Color::BLACK;
+        uncle->color = Color::BLACK;
+        grandparent->color = Color::RED;
+        node = grandparent;
+    }
+
+    root->color = Color::BLACK; // korzen zawsze bedzie czarny wiec jest to ostatni krok funkcji
 }
 
 template <typename T>
@@ -206,6 +288,7 @@ inline auto RBTree<T>::get_succesor(RBTree<T>::Node *node) -> RBTree<T>::Node *
     return node;
 }
 
+/*
 template <typename T>
 void RBTree<T>::rotateR(RBTree<T>::Node *node)
 {
@@ -215,19 +298,111 @@ void RBTree<T>::rotateR(RBTree<T>::Node *node)
     Node **child_from, **child_to, *child;
 
     child_from = &node->right_child; // miejsce przenoszonego dziecka
-    child_to = &parent->left_child;  // miejsce w ktore trafi dziecko
+
+    child_to = &parent->left_child; // miejsce w ktore trafi dziecko
 
     child = *child_from; // podmiana dziecka na wezel woko ktorego rotujemy
+
     *child_from = parent;
-    node->parent = parent->parent; // prawdziadek zostaje ojcem wezla rotowanego
-    get_parent_slot(parent) =
-        node;              // dowiadujemy sie jakim dzieckiem byl wezel wokol ktorego rotujemy
-    parent->parent = node; // i wstawiamy tam rotowany wezel
-    *child_to = child;     // zajmujemy sie przeniesionym dzieckiem
+    std::cout << "Test tej 15" << std::endl;
+
+    if (node != root)
+    {
+        std::cout << "Test tej 16" << std::endl;
+        node->parent = parent->parent; // prawdziadek zostaje ojcem wezla rotowanego
+
+        get_parent_slot(parent) =
+            node;
+        // dowiadujemy sie jakim dzieckiem byl wezel wokol ktorego rotujemy
+        parent->parent = node; // i wstawiamy tam rotowany wezel
+    }
+    std::cout << "Test tej 17" << std::endl;
+
+    *child_to = child; // zajmujemy sie przeniesionym dzieckiem
+    std::cout << "Test tej 17" << std::endl;
     if (child)
         child->parent = parent; // rotowanego wezla
 }
+*/
 
+template <typename T>
+void RBTree<T>::rotateR(RBTree<T>::Node *node)
+{
+    // new parent will be node's left child
+    Node *new_parent = node->left_child;
+
+    // update root if current node is root
+    if (node == root)
+        root = new_parent;
+
+    std::cout<< "CO NIBY NIE DZIALA";
+    if (node->parent != NULL)
+    {
+        if (node->parent->left_child == node)
+        {
+            node->parent->left_child = new_parent;
+        }
+        else
+        {
+            node->parent->right_child = new_parent;
+        }
+    }
+    new_parent->parent = node->parent;
+    node->parent = new_parent;
+
+
+
+    // connect x with new parent's right element
+    node->left_child = new_parent->right_child;
+    // connect new parent's right element with node
+    // if it is not null
+    if (new_parent->right_child != nullptr)
+        new_parent->right_child->parent = node;
+
+    // connect new parent with x
+    new_parent->right_child = node;
+}
+
+template <typename T>
+void RBTree<T>::rotateL(RBTree<T>::Node *node)
+{
+    // new parent will be node's left child
+    Node *new_parent = node->right_child;
+
+    // update root if current node is root
+    if (node == root)
+        root = new_parent;
+
+    std::cout<< "CO NIBY NIE DZIALA";
+    if (node->parent != NULL)
+    {
+        if (node->parent->left_child == node)
+        {
+            node->parent->left_child = new_parent;
+        }
+        else
+        {
+            node->parent->right_child = new_parent;
+        }
+    }
+    new_parent->parent = node->parent;
+    node->parent = new_parent;
+
+
+
+    // connect x with new parent's right element
+    node->right_child = new_parent->left_child;
+    // connect new parent's right element with node
+    // if it is not null
+    if (new_parent->left_child != nullptr)
+        new_parent->left_child->parent = node;
+
+    // connect new parent with x
+    new_parent->left_child = node;
+}
+
+
+/*
 template <typename T>
 void RBTree<T>::rotateL(RBTree<T>::Node *node)
 {
@@ -251,6 +426,7 @@ void RBTree<T>::rotateL(RBTree<T>::Node *node)
         child->parent = parent; // rotowanego wezla
     }
 }
+*/
 
 template <typename T>
 void RBTree<T>::print()
@@ -342,6 +518,7 @@ bool RBTree<T>::pop(const T &value)
 {
     Node *search = bst_search(value);
     delete_node(search);
+    return true;
     /*
     // Usuwanie czerwonego liscia
     if (search->color == Color::RED)
@@ -370,17 +547,19 @@ inline auto RBTree<T>::bst_search(const T &value) -> RBTree<T>::Node *
 template <typename T>
 inline auto RBTree<T>::get_brother(Node *node) -> RBTree<T>::Node *
 {
+    if (node->parent == nullptr)
+    {
+        return nullptr;
+    }
     if (node->parent->left_child == node)
     {
+        std::cout << "XD1" << std::endl;
         return node->parent->right_child;
-    }
-    if (node->parent->right_child == node)
-    {
-        return node->parent->left_child;
     }
     else
     {
-        return nullptr;
+        std::cout << "XD2" << std::endl;
+        return node->parent->left_child;
     }
 }
 
@@ -527,7 +706,7 @@ void RBTree<T>::delete_node(Node *node)
 
             if (both_black)
             {
-                std::cout << "TEST FUNKCJI1" << std::endl;
+                std::cout << "TEST FUNKCJI0" << std::endl;
                 fix_double_black(node);
             }
             else
@@ -546,12 +725,9 @@ void RBTree<T>::delete_node(Node *node)
             else
             {
                 std::cout << "TEST FUNKCJI8" << std::endl;
-                parent->right_child == nullptr;
+                parent->right_child = nullptr;
             }
         }
-        std::cout << "TEST FUNKCJI11" << std::endl;
-        std::cout << node->value;
-        if(replacement!=nullptr)std::cout << replacement->value;
         delete node;
         return;
     }
@@ -603,14 +779,17 @@ void RBTree<T>::fix_double_black(Node *node)
     }
 
     Node *brother = get_brother(node);
+    std::cout << "Test tej 1" << std::endl;
     Node *parent = node->parent;
 
     if (brother == nullptr)
     {
+        std::cout << "Test tej 2" << std::endl;
         fix_double_black(parent);
     }
     else
     {
+        std::cout << "Test tej 3" << std::endl;
         if (brother->color == Color::RED)
         {
             parent->color = Color::RED;
@@ -627,18 +806,25 @@ void RBTree<T>::fix_double_black(Node *node)
         }
         else
         {
+            std::cout << "Test tej 4" << std::endl;
             if (has_red_child(brother))
             {
+                std::cout << "Test tej 5" << std::endl;
                 if (brother->left_child != nullptr && brother->left_child->color == Color::RED)
                 {
+                    std::cout << "Test tej 7" << std::endl;
                     if (brother->parent->left_child == brother)
                     {
+                        std::cout << "Test tej 8" << std::endl;
                         brother->left_child->color = brother->color;
+                        std::cout << "Test tej 9" << std::endl;
                         brother->color = parent->color;
+                        std::cout << "Test tej 10" << std::endl;
                         rotateR(parent);
                     }
                     else
                     {
+                        std::cout << "Test tej 9" << std::endl;
                         brother->left_child->color = parent->color;
                         rotateR(brother);
                         rotateL(parent);
@@ -659,10 +845,12 @@ void RBTree<T>::fix_double_black(Node *node)
                         rotateL(parent);
                     }
                 }
+                std::cout << "Test tej 15" << std::endl;
                 parent->color = Color::BLACK;
             }
             else
             {
+                std::cout << "Test tej 6" << std::endl;
                 brother->color = Color::RED;
                 if (parent->color == Color::BLACK)
                 {
@@ -687,7 +875,8 @@ bool RBTree<T>::has_red_child(Node *node)
     {
         return true;
     }
-    return false;
+    else
+        return false;
 }
 template <typename T>
 inline auto RBTree<T>::find_replace(Node *node) -> RBTree<T>::Node *
