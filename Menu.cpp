@@ -295,7 +295,7 @@ int main()
 {
     char input;
     cout << "SDiZO Projekt 1.\n"
-         << "Autor: Paul Paczyński ITE 4 semestr"
+         << "Autor: Paul Paczyński ITE 4 semestr\n"
          << "b - test automatyczny kontenerów\n"
          << "m - test manualny\n";
     input = getOptionFromUser();
