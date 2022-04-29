@@ -32,5 +32,4 @@ public:
 private:
     Node *head = nullptr;
     Node *tail = nullptr;
-
 };

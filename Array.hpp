@@ -8,33 +8,31 @@ class Array
     int array_size = 0;
     int *array = nullptr;
 
-
 public:
     Array(const int &size = 0);
     ~Array();
 
+    void resize(const int &size);
 
-    void resize(const int &size); //done
+    void print();
 
-    void print(); //done
+    void push_back(const T &value);
 
-    void push_back(const T &value); //done
+    void push_front(const T &value);
 
-    void push_front(const T &value); //done
+    void pop_back();
 
-    void pop_back(); //done
+    void pop_front();
 
-    void pop_front(); //done
+    void push(const T &value, const int &index);
 
-    void push(const T &value, const int &index); //done
- 
-    void pop(const T &index);  //done
+    void pop(const T &index);
 
-    void index_check(const int &index); //done
+    void index_check(const int &index);
 
     int get_array_size();
 
-    bool search(const T &value); //done
+    bool search(const T &value);
 
     T &get_value(const int &at);
 };

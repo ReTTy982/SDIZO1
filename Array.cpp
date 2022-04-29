@@ -39,7 +39,6 @@ void Array<T>::print()
     std::cout << std::endl;
 }
 
-
 template <typename T>
 void Array<T>::push_back(const T &value)
 {
@@ -143,13 +142,13 @@ int Array<T>::get_array_size()
 template <typename T>
 T &Array<T>::get_value(const int &at)
 {
-    
+
     if (at >= array_size)
     {
-        
+
         throw std::out_of_range("Array index out of range");
     }
-        
+
     return array[at];
 }
 

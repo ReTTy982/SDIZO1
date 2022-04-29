@@ -289,42 +289,6 @@ inline auto RBTree<T>::get_succesor(RBTree<T>::Node *node) -> RBTree<T>::Node *
     return node;
 }
 
-/*
-template <typename T>
-void RBTree<T>::rotateR(RBTree<T>::Node *node)
-{
-
-    Node *parent = node->parent;
-
-    Node **child_from, **child_to, *child;
-
-    child_from = &node->right_child; // miejsce przenoszonego dziecka
-
-    child_to = &parent->left_child; // miejsce w ktore trafi dziecko
-
-    child = *child_from; // podmiana dziecka na wezel woko ktorego rotujemy
-
-    *child_from = parent;
-    std::cout << "Test tej 15" << std::endl;
-
-    if (node != root)
-    {
-        std::cout << "Test tej 16" << std::endl;
-        node->parent = parent->parent; // prawdziadek zostaje ojcem wezla rotowanego
-
-        get_parent_slot(parent) =
-            node;
-        // dowiadujemy sie jakim dzieckiem byl wezel wokol ktorego rotujemy
-        parent->parent = node; // i wstawiamy tam rotowany wezel
-    }
-    std::cout << "Test tej 17" << std::endl;
-
-    *child_to = child; // zajmujemy sie przeniesionym dzieckiem
-    std::cout << "Test tej 17" << std::endl;
-    if (child)
-        child->parent = parent; // rotowanego wezla
-}
-*/
 
 template <typename T>
 void RBTree<T>::rotateR(RBTree<T>::Node *node)
@@ -396,31 +360,6 @@ void RBTree<T>::rotateL(RBTree<T>::Node *node)
     new_parent->left_child = node;
 }
 
-/*
-template <typename T>
-void RBTree<T>::rotateL(RBTree<T>::Node *node)
-{
-
-    Node *parent = node->parent;
-
-    Node **child_from, **child_to, *child;
-
-    child_from = &node->left_child;  // miejsce przenoszonego dziecka
-    child_to = &parent->right_child; // miejsce w ktore trafi dziecko
-
-    child = *child_from; // podmiana dziecka na wezel woko ktorego rotujemy
-    *child_from = parent;
-    node->parent = parent->parent; // prawdziadek zostaje ojcem wezla rotowanego
-    get_parent_slot(parent) =
-        node;              // dowiadujemy sie jakim dzieckiem byl wezel wokol ktorego rotujemy
-    parent->parent = node; // i wstawiamy tam rotowany wezel
-    *child_to = child;     // zajmujemy sie przeniesionym dzieckiem
-    if (child)
-    {
-        child->parent = parent; // rotowanego wezla
-    }
-}
-*/
 
 template <typename T>
 void RBTree<T>::print()
@@ -513,15 +452,7 @@ bool RBTree<T>::pop(const T &value)
     Node *search = bst_search(value);
     delete_node(search);
     return true;
-    /*
-    // Usuwanie czerwonego liscia
-    if (search->color == Color::RED)
-    {
-        bst_delete(search);
-    }
 
-    std::cout << "TEST0" << std::endl;
-    */
 }
 
 template <typename T>
@@ -557,117 +488,6 @@ inline auto RBTree<T>::get_brother(Node *node) -> RBTree<T>::Node *
     }
 }
 
-template <typename T>
-bool RBTree<T>::bst_delete(Node *node) // const T &value
-{
-    bool is_left_child; //  jakim synem jest usuwany wezel
-    // Node *search = root;
-    Node *search = node;
-
-    std::cout << "TEST1" << std::endl;
-    /*
-    while (search && search->value != value)
-    {
-        if (search->value > value)
-            search = search->left_child;
-        else
-            search = search->right_child;
-    }
-    */
-    std::cout << "TEST2" << std::endl;
-
-    if (search)
-    {
-        std::cout << "TEST3" << std::endl;
-
-        Node *parent = search->parent;
-        std::cout << "TEST4" << std::endl;
-
-        // sprawdzamy ktorym dzieciakiem jest wezel
-
-        if (search != root && parent->left_child != nullptr && search->value == parent->left_child->value)
-        {
-            is_left_child = true;
-        }
-        else
-        {
-            is_left_child = false;
-        }
-        std::cout << "TEST5" << std::endl;
-
-        // Wezel jest lisciem
-        if (search->left_child == nullptr && search->right_child == nullptr)
-        {
-            std::cout << "TEST6" << std::endl;
-
-            if (search != root)
-            {
-
-                if (search->color == Color::RED) // wezel jest lisciem i jest czerwony wiec mozemy go usunac
-                {
-                    if (is_left_child)
-                    {
-                        parent->left_child = nullptr;
-                    }
-                    else
-                    {
-                        parent->right_child = nullptr;
-                    }
-                    delete search;
-                    return true;
-                }
-                // jesli wezel jest lisciem i jest czarny
-                else
-                {
-                }
-            }
-            else
-            {
-                std::cout << "TEST7" << std::endl;
-                root == nullptr;
-                return true;
-            }
-        }
-        // Case 2, wezel ma 2 dzieci
-        if (search->left_child != nullptr && search->right_child != nullptr)
-        {
-
-            Node *succesor = get_succesor(search->right_child);
-            T val = succesor->value;
-            bst_delete(succesor);
-            search->value = val;
-            std::cout << search->value << std::endl;
-            std::cout << "Petla?" << std::endl;
-        }
-        // Wezel ma tylko 1 dziecko
-        else
-        {
-            Node *child = (search->left_child != nullptr) ? search->left_child : search->right_child;
-            if (search != root)
-            {
-                if (search == parent->left_child)
-                {
-                    parent->left_child = child;
-                }
-                else
-                {
-                    parent->right_child = child;
-                }
-            }
-            else
-            {
-                root = child;
-            }
-            delete search;
-            return true;
-        }
-    }
-    else
-    {
-
-        return false;
-    }
-}
 
 template <typename T>
 void RBTree<T>::delete_node(Node *node)
@@ -889,27 +709,8 @@ inline auto RBTree<T>::find_replace(Node *node) -> RBTree<T>::Node *
     }
 }
 
-template <typename T>
-void RBTree<T>::delete_fix(Node *node)
-{
-    while (node != root && node->color == Color::BLACK)
-    {
-    }
-}
 
-template <typename T>
-int RBTree<T>::count_children(Node *node)
-{
-    int count = 0;
-    if (node->left_child)
-    {
-        count++;
-    }
-    if (node->right_child)
-    {
-        count++;
-    }
-    return count;
-}
+
+
 
 template class RBTree<int>;

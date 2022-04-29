@@ -31,9 +31,9 @@ vector<datatype> readFromFile()
     file >> len;
     datatype val;
 
-    for (;len>0;len--)
+    for (; len > 0; len--)
     {
-        file >>val;
+        file >> val;
         values.push_back(val);
         cout << val;
     }
@@ -48,7 +48,6 @@ datatype getDataFromUser()
     cout << "Podaj wartosc:\n";
     cin >> val;
 
-    // Clear any garbage
     cin.clear();
     cin.ignore(10000, '\n');
 
@@ -60,7 +59,6 @@ char getOptionFromUser()
     char input;
     std::cin >> input;
 
-    // Clear any garbage
     cin.clear();
     cin.ignore(10000, '\n');
 
@@ -297,6 +295,7 @@ int main()
 {
     char input;
     cout << "SDiZO Projekt 1.\n"
+         << "Autor: Paul Paczyński ITE 4 semestr"
          << "b - test automatyczny kontenerów\n"
          << "m - test manualny\n";
     input = getOptionFromUser();

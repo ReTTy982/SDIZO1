@@ -3,7 +3,9 @@
 #include "Array.hpp"
 #include "iostream"
 
-template <typename T> class BinHeap {
+template <typename T>
+class BinHeap
+{
   Array<T> array;
 
 public:

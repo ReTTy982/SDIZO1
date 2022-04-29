@@ -25,7 +25,7 @@ void List<T>::push_front(const T &data)
     head->value = data;
     head->next = temp;
 
-    if (temp)
+    if (temp) // jesli wartosc jest jedynym skladnikiem to jest zarowno poczatkiem jak i koncem listy
     {
         temp->prev = head;
     }
@@ -42,7 +42,7 @@ void List<T>::push_back(const T &data)
     node->value = data;
     node->prev = tail;
 
-    if (tail)
+    if (tail) // Jesli wartosc jest jedynym skladnikiem to jest zarowno koncem jak i poczatkiem
     {
         tail->next = node;
     }
@@ -53,25 +53,31 @@ void List<T>::push_back(const T &data)
     tail = node;
 }
 
-// next node bedzie po wprowadzonym nodzie
+// Nowy wezel zostanie wprowadzony po elemencie node_at
 template <typename T>
-void List<T>::push(const T &val, Node *&next_node)
+void List<T>::push(const T &val, Node *&node_at)
 {
-    if(!next_node){
+    if (!node_at)
+    {
         throw std::runtime_error("Node does not exist\n");
     }
 
-    Node *node =new Node();
+    Node *node = new Node();
     node->value = val;
-    node->prev = next_node->prev;
-    node->next = next_node;
+    node->prev = node_at->prev;
+    node->next = node_at;
 
-    //next node might be head
-    if(next_node->prev){
-        next_node->prev->next = node;
+    //  Jesli node_at to poczatek listy to znaczy ze wpisany wezel bedzie poczatkiem
+    if (node_at->prev)
+    {
+        node_at->prev->next = node;
+    }
+    else
+    {
+        head = node;
     }
 
-    next_node->prev = node;
+    node_at->prev = node;
 }
 
 template <typename T>
@@ -141,7 +147,6 @@ void List<T>::pop(Node *&node)
     }
     else
     {
-        // head
         if (node->next)
         {
             head = node->next;
@@ -172,7 +177,7 @@ void List<T>::pop(Node *&node)
 }
 
 template <typename T>
-bool List<T>::search(const T &data) 
+bool List<T>::search(const T &data)
 {
     Node *node = get_node(data);
     return node;
@@ -203,7 +208,7 @@ auto List<T>::get_node(const T &val) const -> List<T>::Node *
             return node;
         }
         node = node->next;
-    }
+        }
     return nullptr;
 }
 

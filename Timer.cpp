@@ -20,8 +20,8 @@ FileHandler logger;
 int loopCount = 10;
 int datasetGenerationCount = 100;
 
-std::vector<int> datasetSizesToTest =                    //{10};
-    {1000, 2000, 3000, 4000, 5000, 10000, 15000, 20000}; //, 30000, 40000, 50'000}; //, 100'000, 250'000};
+std::vector<int> datasetSizesToTest =
+    {1000, 2000, 3000, 4000, 5000, 10000, 15000, 20000};
 
 int datasetSize = 2000;
 
@@ -62,7 +62,7 @@ unsigned long long Timer::ArrayInsert()
 {
     AveragedTimeMeasure<timedata> containerTimeAvarage;
 
-    for (int i = 0; i < datasetGenerationCount; i++) // Ile zbiorow liczb generuje
+    for (int i = 0; i < datasetGenerationCount; i++)
     {
         std::vector<int> dataset = generateRandomData<int>(datasetSize);
 
@@ -89,21 +89,25 @@ unsigned long long Timer::ListInsert()
 
     AveragedTimeMeasure<timedata> containerTimeAvarage;
 
-    for (int i = 0; i < datasetGenerationCount; i++) // Ile zbiorow liczb generuje
+    for (int i = 0; i < datasetGenerationCount; i++)
     {
         std::vector<int> dataset = generateRandomData<int>(datasetSize);
 
-        List<T> container;
-        container.push_back(dataset[0]);
-
-        for (int datasetIndex = 0; datasetIndex < datasetSize; datasetIndex++)
+        for (int i = 0; i < loopCount; i++)
         {
-            int insertIndex = randomNumberWithinRange(0, datasetIndex - 1);
-            auto *node = container.get_node(dataset[datasetIndex]);
 
-            containerTimeAvarage.benchmarkStart();
-            container.push(dataset[datasetIndex], node);
-            containerTimeAvarage.benchmarkStop();
+            List<T> container;
+            container.push_back(dataset[0]);
+
+            for (int datasetIndex = 1; datasetIndex < datasetSize; datasetIndex++)
+            {
+                int insertIndex = randomNumberWithinRange(0, datasetIndex - 1);
+                auto *node = container.get_node(dataset[insertIndex]);
+
+                containerTimeAvarage.benchmarkStart();
+                container.push(dataset[datasetIndex], node);
+                containerTimeAvarage.benchmarkStop();
+            }
         }
     }
     return containerTimeAvarage.getAvgElapsedNsec();
@@ -115,7 +119,7 @@ unsigned long long Timer::GenericInsert(std::function<void(T<D> &, D)> func)
 
     AveragedTimeMeasure<timedata> containerTimeAvarage;
 
-    for (int i = 0; i < datasetGenerationCount; i++) // Ile zbiorow liczb generuje
+    for (int i = 0; i < datasetGenerationCount; i++)
     {
         std::vector<D> dataset = generateRandomData<D>(datasetSize);
 
@@ -205,7 +209,7 @@ timedata Timer::GenericSearch(std::function<void(T<D> &, D)> funcAdd)
 {
     AveragedTimeMeasure<timedata> containerTimeAvarage;
 
-    for (int i = 0; i < datasetGenerationCount; i++) // Ile zbiorow liczb generuje
+    for (int i = 0; i < datasetGenerationCount; i++)
     {
 
         std::vector<D> dataset = generateRandomData<D>(datasetSize);
@@ -258,36 +262,45 @@ void Timer::run()
     auto tree_push = [](RBTree<datatype> &tree, const datatype &value)
     { tree.push(value); };
 
-
     GenericInsert<Array, datatype>(array_push_front); // Nie wiem czemu ale to naprawia bardzo niski czas pierwszej operacji.
     for (auto size : datasetSizesToTest)
     {
         datasetSize = size;
-    
-        // ARRAY
-        logger.logToFile(GenericInsert<Array, datatype>(array_push_front));
-        logger.logToFile(GenericInsert<Array, datatype>(array_push_back));
-        logger.logToFile(GenericRemoveFunc<Array, datatype>(array_push_back, array_pop_front));
-        logger.logToFile(GenericRemoveFunc<Array, datatype>(array_push_back, array_pop_back));
-        logger.logToFile(GenericSearch<Array, datatype>(array_push_back));
+        /*
+                // ARRAY
+                logger.logToFile(GenericInsert<Array, datatype>(array_push_front));
+                logger.logToFile(GenericInsert<Array, datatype>(array_push_back));
+                logger.logToFile(GenericRemoveFunc<Array, datatype>(array_push_back, array_pop_front));
+                logger.logToFile(GenericRemoveFunc<Array, datatype>(array_push_back, array_pop_back));
+                logger.logToFile(GenericSearch<Array, datatype>(array_push_back));
 
-        // LIST
 
-        logger.logToFile(GenericInsert<List, datatype>(list_push_front));
-        logger.logToFile(GenericInsert<List, datatype>(list_push_back));
-        logger.logToFile(GenericRemoveFunc<List, datatype>(list_push_back, list_pop_front));
-        logger.logToFile(GenericRemoveFunc<List, datatype>(list_push_back, list_pop_back));
-        logger.logToFile(GenericSearch<List, datatype>(list_push_back));
+                // LIST
 
-        // BinHeap
-        logger.logToFile(GenericInsert<BinHeap, datatype>(heap_push));
-        logger.logToFile(GenericRemove<BinHeap, datatype>(heap_push));
-        logger.logToFile(GenericSearch<BinHeap, datatype>(heap_push));
+                logger.logToFile(GenericInsert<List, datatype>(list_push_front));
+                logger.logToFile(GenericInsert<List, datatype>(list_push_back));
+                logger.logToFile(GenericRemoveFunc<List, datatype>(list_push_back, list_pop_front));
+                logger.logToFile(GenericRemoveFunc<List, datatype>(list_push_back, list_pop_back));
+                logger.logToFile(GenericSearch<List, datatype>(list_push_back));
 
-        //RBTree
-        logger.logToFile(GenericInsert<RBTree, datatype>(tree_push));
-        logger.logToFile(GenericRemove<RBTree,datatype>(tree_push));
-        logger.logToFile(GenericSearch<RBTree,datatype>(tree_push));
+
+                // BinHeap
+                logger.logToFile(GenericInsert<BinHeap, datatype>(heap_push));
+                logger.logToFile(GenericRemove<BinHeap, datatype>(heap_push));
+                logger.logToFile(GenericSearch<BinHeap, datatype>(heap_push));
+
+                // RBTree
+                logger.logToFile(GenericInsert<RBTree, datatype>(tree_push));
+                logger.logToFile(GenericRemove<RBTree, datatype>(tree_push));
+                logger.logToFile(GenericSearch<RBTree, datatype>(tree_push));
+                    */
+        // logger.logToFile(ArrayInsert<datatype>());
+        // logger.logToFile(ListInsert<datatype>());
+        List<datatype> container;
+        container.push_back(2);
+        auto x = container.get_node(2);
+        container.push(3, x);
+        container.print();
 
         logger.array_file
             << std::endl;
