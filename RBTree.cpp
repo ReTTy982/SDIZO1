@@ -1,5 +1,5 @@
-#include <iostream>
 #include "RBTree.hpp"
+#include <iostream>
 #include <queue>
 
 #define REDBG "\x1B[41m"
@@ -31,13 +31,54 @@ void RBTree<T>::push(const T &value)
 {
     if (!root)
     {
-        Node *node = new Node;
+        // std::cout << "No root, making new" << std::endl;
+
+        Node *node = new Node();
         node->value = value;
         node->color = Color::BLACK;
         root = node;
     }
     else
     {
+        /* BACZEK TUTAJ
+        Node *browse = root;
+
+        // std::cout << "Our hero ascends into the pit of red-black madness. What "
+        //"will he find in the depths?"
+        //<< std::endl;
+
+        Node *last_not_null = browse;
+        while (browse != nullptr)
+        {
+            last_not_null = browse;
+            if (browse->value > value)
+            {
+                browse = browse->left_child;
+            }
+            else
+            {
+                browse = browse->right_child;
+            }
+        }
+
+        // std::cout << "Done with downwards traversal" << std::endl;
+
+        Node *node = new Node();
+        node->value = value;
+        node->parent = last_not_null;
+
+        if (last_not_null->value > value)
+        {
+            last_not_null->left_child = node;
+        }
+        else
+        {
+            last_not_null->right_child = node;
+        }
+
+        // std::cout << "As all things should be" << std::endl;
+        fix_balance(node);
+        */
         Node **browse = &root;
         Node *parent;
 
@@ -63,6 +104,86 @@ void RBTree<T>::push(const T &value)
         fix_balance(node);
     }
 }
+/*
+template <typename T>
+void RBTree<T>::fix_balance(Node *node)
+{
+    // std::cout << "Establishing balance" << std::endl;
+
+    if (node->parent == root)
+    {
+        // std::cout << "Twój stary korzeń" << std::endl;
+    }
+    if (node->parent->color == Color::RED)
+    {
+        // std::cout << "Twój stary czerwony" << std::endl;
+    }
+    else
+    {
+        // std::cout << "Twój stary czarny" << std::endl;
+    }
+
+    while (node != root &&
+           node->parent->color ==
+               Color::RED) // Ojciec nie jest czarny a wezel nie jest korzeniem
+    {
+        Node *parent = node->parent;
+        Node *grandparent = parent->parent;
+
+        Node *uncle = get_uncle(parent);
+
+        if (!uncle || uncle->color == Color::BLACK) // Wujek jest czarny/NIL
+        {
+            // Najpierw musimy przejsc z przypadku trójkątnego do liniowego
+            if (parent->value < node->value &&
+                grandparent->value >
+                    node->value) // wierzcholek trojkata skierowany w lewo
+            {
+                rotateL(node);
+
+                node = node->left_child;
+                parent = node->parent;
+                grandparent = parent->parent;
+            }
+            else if (parent->value > node->value &&
+                     grandparent->value <
+                         node->value) // wierzcholek traojkata skierowany w prawo
+            {
+                rotateR(node);
+
+                node = node->right_child;
+                parent = node->parent;
+                grandparent = parent->parent;
+            }
+
+            // zmieniam kolory zanim nadpisze zmienne kolejna rotacja
+            parent->color = Color::BLACK;
+            node->color = Color::RED;
+            grandparent->color = Color::RED;
+
+            // rotacja z przypadku liniowego
+            if (parent->left_child == node)
+            {
+
+                rotateR(parent);
+            }
+            else
+            {
+                rotateL(parent);
+            }
+            break;
+        }
+
+        // Przypadek kiedy wujaszek jest czerwony
+        parent->color = Color::BLACK;
+        uncle->color = Color::BLACK;
+        grandparent->color = Color::RED;
+        node = grandparent;
+    }
+
+    root->color = Color::BLACK; // korzen zawsze bedzie czarny wiec jest to
+                                // ostatni krok funkcji
+}*/
 
 template <typename T>
 void RBTree<T>::fix_balance(Node *node)
@@ -122,7 +243,8 @@ void RBTree<T>::fix_balance(Node *node)
 }
 
 template <typename T>
-inline auto RBTree<T>::get_parent_slot(const RBTree<T>::Node *node) -> RBTree<T>::Node *&
+inline auto RBTree<T>::get_parent_slot(const RBTree<T>::Node *node)
+    -> RBTree<T>::Node *&
 {
     if (node == root)
     {
@@ -142,7 +264,8 @@ inline auto RBTree<T>::get_parent_slot(const RBTree<T>::Node *node) -> RBTree<T>
 }
 
 template <typename T>
-inline auto RBTree<T>::get_uncle(const RBTree<T>::Node *node) -> RBTree<T>::Node *&
+inline auto RBTree<T>::get_uncle(const RBTree<T>::Node *node)
+    -> RBTree<T>::Node *&
 {
     if (node->parent->left_child == node)
     {
@@ -155,6 +278,18 @@ inline auto RBTree<T>::get_uncle(const RBTree<T>::Node *node) -> RBTree<T>::Node
 }
 
 template <typename T>
+inline auto RBTree<T>::get_succesor(RBTree<T>::Node *node) -> RBTree<T>::Node *
+{
+    std::cout << "Wchodze";
+    while (node->left_child != nullptr)
+    {
+        node = node->left_child;
+    }
+    return node;
+}
+
+/*
+template <typename T>
 void RBTree<T>::rotateR(RBTree<T>::Node *node)
 {
 
@@ -163,18 +298,111 @@ void RBTree<T>::rotateR(RBTree<T>::Node *node)
     Node **child_from, **child_to, *child;
 
     child_from = &node->right_child; // miejsce przenoszonego dziecka
-    child_to = &parent->left_child;  // miejsce w ktore trafi dziecko
+
+    child_to = &parent->left_child; // miejsce w ktore trafi dziecko
 
     child = *child_from; // podmiana dziecka na wezel woko ktorego rotujemy
+
     *child_from = parent;
-    node->parent = parent->parent;  // prawdziadek zostaje ojcem wezla rotowanego
-    get_parent_slot(parent) = node; // dowiadujemy sie jakim dzieckiem byl wezel wokol ktorego rotujemy
-    parent->parent = node;          // i wstawiamy tam rotowany wezel
-    *child_to = child;              // zajmujemy sie przeniesionym dzieckiem
+    std::cout << "Test tej 15" << std::endl;
+
+    if (node != root)
+    {
+        std::cout << "Test tej 16" << std::endl;
+        node->parent = parent->parent; // prawdziadek zostaje ojcem wezla rotowanego
+
+        get_parent_slot(parent) =
+            node;
+        // dowiadujemy sie jakim dzieckiem byl wezel wokol ktorego rotujemy
+        parent->parent = node; // i wstawiamy tam rotowany wezel
+    }
+    std::cout << "Test tej 17" << std::endl;
+
+    *child_to = child; // zajmujemy sie przeniesionym dzieckiem
+    std::cout << "Test tej 17" << std::endl;
     if (child)
         child->parent = parent; // rotowanego wezla
 }
+*/
 
+template <typename T>
+void RBTree<T>::rotateR(RBTree<T>::Node *node)
+{
+    // new parent will be node's left child
+    Node *new_parent = node->left_child;
+
+    // update root if current node is root
+    if (node == root)
+        root = new_parent;
+
+    std::cout<< "CO NIBY NIE DZIALA";
+    if (node->parent != NULL)
+    {
+        if (node->parent->left_child == node)
+        {
+            node->parent->left_child = new_parent;
+        }
+        else
+        {
+            node->parent->right_child = new_parent;
+        }
+    }
+    new_parent->parent = node->parent;
+    node->parent = new_parent;
+
+
+
+    // connect x with new parent's right element
+    node->left_child = new_parent->right_child;
+    // connect new parent's right element with node
+    // if it is not null
+    if (new_parent->right_child != nullptr)
+        new_parent->right_child->parent = node;
+
+    // connect new parent with x
+    new_parent->right_child = node;
+}
+
+template <typename T>
+void RBTree<T>::rotateL(RBTree<T>::Node *node)
+{
+    // new parent will be node's left child
+    Node *new_parent = node->right_child;
+
+    // update root if current node is root
+    if (node == root)
+        root = new_parent;
+
+    std::cout<< "CO NIBY NIE DZIALA";
+    if (node->parent != NULL)
+    {
+        if (node->parent->left_child == node)
+        {
+            node->parent->left_child = new_parent;
+        }
+        else
+        {
+            node->parent->right_child = new_parent;
+        }
+    }
+    new_parent->parent = node->parent;
+    node->parent = new_parent;
+
+
+
+    // connect x with new parent's right element
+    node->right_child = new_parent->left_child;
+    // connect new parent's right element with node
+    // if it is not null
+    if (new_parent->left_child != nullptr)
+        new_parent->left_child->parent = node;
+
+    // connect new parent with x
+    new_parent->left_child = node;
+}
+
+
+/*
 template <typename T>
 void RBTree<T>::rotateL(RBTree<T>::Node *node)
 {
@@ -188,15 +416,17 @@ void RBTree<T>::rotateL(RBTree<T>::Node *node)
 
     child = *child_from; // podmiana dziecka na wezel woko ktorego rotujemy
     *child_from = parent;
-    node->parent = parent->parent;  // prawdziadek zostaje ojcem wezla rotowanego
-    get_parent_slot(parent) = node; // dowiadujemy sie jakim dzieckiem byl wezel wokol ktorego rotujemy
-    parent->parent = node;          // i wstawiamy tam rotowany wezel
-    *child_to = child;              // zajmujemy sie przeniesionym dzieckiem
+    node->parent = parent->parent; // prawdziadek zostaje ojcem wezla rotowanego
+    get_parent_slot(parent) =
+        node;              // dowiadujemy sie jakim dzieckiem byl wezel wokol ktorego rotujemy
+    parent->parent = node; // i wstawiamy tam rotowany wezel
+    *child_to = child;     // zajmujemy sie przeniesionym dzieckiem
     if (child)
     {
         child->parent = parent; // rotowanego wezla
     }
 }
+*/
 
 template <typename T>
 void RBTree<T>::print()
@@ -286,36 +516,396 @@ bool RBTree<T>::search(const T &value)
 template <typename T>
 bool RBTree<T>::pop(const T &value)
 {
-    // przeszukiwanie drzewa
-    Node *pop_node = root;
-    while (pop_node && pop_node->value != value)
+    Node *search = bst_search(value);
+    delete_node(search);
+    return true;
+    /*
+    // Usuwanie czerwonego liscia
+    if (search->color == Color::RED)
     {
-        if (pop_node->value > value)
-            pop_node = pop_node->left_child;
-        else
-            pop_node = pop_node->right_child;
+        bst_delete(search);
     }
 
-    if (!pop_node)
-    {
-        return false;
-    }
-    std::cout<< pop_node->value;
-
-    int children_counter = count_children(pop_node);
+    std::cout << "TEST0" << std::endl;
+    */
 }
 
 template <typename T>
-bool RBTree<T>::bst_delete(const T &value)
+inline auto RBTree<T>::bst_search(const T &value) -> RBTree<T>::Node *
 {
+    Node *search = root;
+    while (search && search->value != value)
+    {
+        if (search->value > value)
+            search = search->left_child;
+        else
+            search = search->right_child;
+    }
+    return search;
 }
 
+template <typename T>
+inline auto RBTree<T>::get_brother(Node *node) -> RBTree<T>::Node *
+{
+    if (node->parent == nullptr)
+    {
+        return nullptr;
+    }
+    if (node->parent->left_child == node)
+    {
+        std::cout << "XD1" << std::endl;
+        return node->parent->right_child;
+    }
+    else
+    {
+        std::cout << "XD2" << std::endl;
+        return node->parent->left_child;
+    }
+}
 
+template <typename T>
+bool RBTree<T>::bst_delete(Node *node) // const T &value
+{
+    bool is_left_child; //  jakim synem jest usuwany wezel
+    // Node *search = root;
+    Node *search = node;
+
+    std::cout << "TEST1" << std::endl;
+    /*
+    while (search && search->value != value)
+    {
+        if (search->value > value)
+            search = search->left_child;
+        else
+            search = search->right_child;
+    }
+    */
+    std::cout << "TEST2" << std::endl;
+
+    if (search)
+    {
+        std::cout << "TEST3" << std::endl;
+
+        Node *parent = search->parent;
+        std::cout << "TEST4" << std::endl;
+
+        // sprawdzamy ktorym dzieciakiem jest wezel
+
+        if (search != root && parent->left_child != nullptr && search->value == parent->left_child->value)
+        {
+            is_left_child = true;
+        }
+        else
+        {
+            is_left_child = false;
+        }
+        std::cout << "TEST5" << std::endl;
+
+        // Wezel jest lisciem
+        if (search->left_child == nullptr && search->right_child == nullptr)
+        {
+            std::cout << "TEST6" << std::endl;
+
+            if (search != root)
+            {
+
+                if (search->color == Color::RED) // wezel jest lisciem i jest czerwony wiec mozemy go usunac
+                {
+                    if (is_left_child)
+                    {
+                        parent->left_child = nullptr;
+                    }
+                    else
+                    {
+                        parent->right_child = nullptr;
+                    }
+                    delete search;
+                    return true;
+                }
+                // jesli wezel jest lisciem i jest czarny
+                else
+                {
+                }
+            }
+            else
+            {
+                std::cout << "TEST7" << std::endl;
+                root == nullptr;
+                return true;
+            }
+        }
+        // Case 2, wezel ma 2 dzieci
+        if (search->left_child != nullptr && search->right_child != nullptr)
+        {
+
+            Node *succesor = get_succesor(search->right_child);
+            T val = succesor->value;
+            bst_delete(succesor);
+            search->value = val;
+            std::cout << search->value << std::endl;
+            std::cout << "Petla?" << std::endl;
+        }
+        // Wezel ma tylko 1 dziecko
+        else
+        {
+            Node *child = (search->left_child != nullptr) ? search->left_child : search->right_child;
+            if (search != root)
+            {
+                if (search == parent->left_child)
+                {
+                    parent->left_child = child;
+                }
+                else
+                {
+                    parent->right_child = child;
+                }
+            }
+            else
+            {
+                root = child;
+            }
+            delete search;
+            return true;
+        }
+    }
+    else
+    {
+
+        return false;
+    }
+}
 
 template <typename T>
 void RBTree<T>::delete_node(Node *node)
 {
-    delete node;
+    std::cout << "TEST FUNKCJI" << std::endl;
+    Node *replacement = find_replace(node);
+    std::cout << "TEST FUNKCJI2" << std::endl;
+    Node *parent = node->parent;
+    std::cout << "TEST FUNKCJI3" << std::endl;
+    Node *brother = get_brother(node);
+    std::cout << "TEST FUNKCJI4" << std::endl;
+    bool both_black;
+    if ((replacement == nullptr || replacement->color == Color::BLACK) && (node->color == Color::BLACK))
+    {
+        both_black = true;
+    }
+    else
+    {
+        both_black = false;
+    }
+    if (replacement == nullptr)
+    {
+        std::cout << "TEST FUNKCJI5" << std::endl;
+        if (node == root)
+        {
+            root = nullptr;
+        }
+        else
+        {
+
+            if (both_black)
+            {
+                std::cout << "TEST FUNKCJI0" << std::endl;
+                fix_double_black(node);
+            }
+            else
+            {
+                std::cout << "TEST FUNKCJI7" << std::endl;
+                if (brother != nullptr)
+                {
+                    brother->color = Color::RED;
+                }
+            }
+
+            if (node->parent->left_child == node)
+            {
+                parent->left_child = nullptr;
+            }
+            else
+            {
+                std::cout << "TEST FUNKCJI8" << std::endl;
+                parent->right_child = nullptr;
+            }
+        }
+        delete node;
+        return;
+    }
+
+    if (node->left_child == nullptr || node->right_child == nullptr)
+    {
+        if (node == root)
+        {
+            node->value = replacement->value;
+            node->left_child = node->right_child = nullptr;
+            delete replacement;
+        }
+        else
+        {
+            if (node->parent->left_child == node)
+            {
+                parent->left_child = replacement;
+            }
+            else
+            {
+                parent->right_child = replacement;
+            }
+            delete node;
+            replacement->parent = parent;
+            if (both_black)
+            {
+                fix_double_black(replacement);
+            }
+            else
+            {
+                replacement->color = Color::BLACK;
+            }
+        }
+        return;
+    }
+    T temp;
+    temp = replacement->value;
+    replacement->value = node->value;
+    node->value = temp;
+    delete_node(replacement);
+}
+
+template <typename T>
+void RBTree<T>::fix_double_black(Node *node)
+{
+    if (node == root)
+    {
+        return;
+    }
+
+    Node *brother = get_brother(node);
+    std::cout << "Test tej 1" << std::endl;
+    Node *parent = node->parent;
+
+    if (brother == nullptr)
+    {
+        std::cout << "Test tej 2" << std::endl;
+        fix_double_black(parent);
+    }
+    else
+    {
+        std::cout << "Test tej 3" << std::endl;
+        if (brother->color == Color::RED)
+        {
+            parent->color = Color::RED;
+            brother->color = Color::BLACK;
+            if (brother->parent->left_child == brother)
+            {
+                rotateR(parent);
+            }
+            else
+            {
+                rotateL(parent);
+            }
+            fix_double_black(node);
+        }
+        else
+        {
+            std::cout << "Test tej 4" << std::endl;
+            if (has_red_child(brother))
+            {
+                std::cout << "Test tej 5" << std::endl;
+                if (brother->left_child != nullptr && brother->left_child->color == Color::RED)
+                {
+                    std::cout << "Test tej 7" << std::endl;
+                    if (brother->parent->left_child == brother)
+                    {
+                        std::cout << "Test tej 8" << std::endl;
+                        brother->left_child->color = brother->color;
+                        std::cout << "Test tej 9" << std::endl;
+                        brother->color = parent->color;
+                        std::cout << "Test tej 10" << std::endl;
+                        rotateR(parent);
+                    }
+                    else
+                    {
+                        std::cout << "Test tej 9" << std::endl;
+                        brother->left_child->color = parent->color;
+                        rotateR(brother);
+                        rotateL(parent);
+                    }
+                }
+                else
+                {
+                    if (brother->parent->left_child == brother)
+                    {
+                        brother->right_child->color = parent->color;
+                        rotateL(brother);
+                        rotateR(parent);
+                    }
+                    else
+                    {
+                        brother->right_child->color = brother->color;
+                        brother->color = parent->color;
+                        rotateL(parent);
+                    }
+                }
+                std::cout << "Test tej 15" << std::endl;
+                parent->color = Color::BLACK;
+            }
+            else
+            {
+                std::cout << "Test tej 6" << std::endl;
+                brother->color = Color::RED;
+                if (parent->color == Color::BLACK)
+                {
+                    fix_double_black(parent);
+                }
+                else
+                {
+                    parent->color = Color::BLACK;
+                }
+            }
+        }
+    }
+}
+template <typename T>
+bool RBTree<T>::has_red_child(Node *node)
+{
+    if (node->left_child != nullptr && node->left_child->color == Color::RED)
+    {
+        return true;
+    }
+    if (node->right_child != nullptr && node->right_child->color == Color::RED)
+    {
+        return true;
+    }
+    else
+        return false;
+}
+template <typename T>
+inline auto RBTree<T>::find_replace(Node *node) -> RBTree<T>::Node *
+{
+    if (node->left_child != nullptr && node->right_child != nullptr)
+    {
+        return get_succesor(node->right_child);
+    }
+
+    if (node->left_child == nullptr && node->right_child == nullptr)
+    {
+        return nullptr;
+    }
+    if (node->left_child != nullptr)
+    {
+        return node->left_child;
+    }
+    else
+    {
+        return node->right_child;
+    }
+}
+
+template <typename T>
+void RBTree<T>::delete_fix(Node *node)
+{
+    while (node != root && node->color == Color::BLACK)
+    {
+    }
 }
 
 template <typename T>

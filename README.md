@@ -1,2 +1,2 @@
 # SDIZO
- Iks kurde bele de
+ NAPRAWDE MAM JUZ DOSC TYCH STUDIOW.

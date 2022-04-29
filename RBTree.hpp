@@ -32,10 +32,18 @@ class RBTree
     void rotateL(Node *node);
     Node *&get_parent_slot(const Node *node);
     Node *&get_uncle(const Node *node);
+    Node *bst_search(const T &value);
+    Node *get_succesor( Node *node);
+    Node *find_replace(Node *node);
+    Node *get_brother(Node *node);
     void eat_children(Node *parent);
     void delete_node(Node *node);
     int count_children(Node *node);
-    bool bst_delete(const T &value);
+    bool bst_delete(Node *node);
+    void delete_fix(Node *node);
+    void fix_double_black(Node *node);
+    bool has_red_child(Node *node);
+
 
 
 
