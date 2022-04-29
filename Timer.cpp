@@ -288,19 +288,15 @@ void Timer::run()
                 logger.logToFile(GenericInsert<BinHeap, datatype>(heap_push));
                 logger.logToFile(GenericRemove<BinHeap, datatype>(heap_push));
                 logger.logToFile(GenericSearch<BinHeap, datatype>(heap_push));
-
+*/
                 // RBTree
                 logger.logToFile(GenericInsert<RBTree, datatype>(tree_push));
                 logger.logToFile(GenericRemove<RBTree, datatype>(tree_push));
                 logger.logToFile(GenericSearch<RBTree, datatype>(tree_push));
-                    */
+                    
         // logger.logToFile(ArrayInsert<datatype>());
         // logger.logToFile(ListInsert<datatype>());
-        List<datatype> container;
-        container.push_back(2);
-        auto x = container.get_node(2);
-        container.push(3, x);
-        container.print();
+
 
         logger.array_file
             << std::endl;
